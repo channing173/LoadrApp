@@ -8,7 +8,9 @@
     <string>automatic</string>
     <key>stripSwiftSymbols</key>
     <true/>
-    <key>teamID</key>
-    <string>PLACEHOLDER</string>
+    <key>provisioningProfiles</key>
+    <dict/>
+    <key>capabilities</key>
+    <dict/>
 </dict>
 </plist>

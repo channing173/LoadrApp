@@ -34,15 +34,23 @@ jobs:
         sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
     - name: Build iOS App
+      env:
+        DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
       run: |
         cd ios/App
+        if [ -z "$DEVELOPMENT_TEAM" ]; then
+          echo "Warning: DEVELOPMENT_TEAM secret not set. Build may fail."
+        fi
         xcodebuild -project App.xcodeproj \
           -scheme App \
           -configuration Release \
           -derivedDataPath build \
-          -allowProvisioningUpdates
+          -allowProvisioningUpdates \
+          DEVELOPMENT_TEAM=$DEVELOPMENT_TEAM
 
     - name: Create IPA
+      env:
+        DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
       run: |
         cd ios/App
         xcodebuild -project App.xcodeproj \
@@ -50,6 +58,8 @@ jobs:
           -configuration Release \
           -derivedDataPath build \
           -archivePath build/App.xcarchive \
+          -allowProvisioningUpdates \
+          DEVELOPMENT_TEAM=$DEVELOPMENT_TEAM \
           archive
 
     - name: Export IPA
