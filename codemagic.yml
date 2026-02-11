@@ -1,0 +1,42 @@
+workflows:
+  ios-build:
+    name: Build iOS IPA
+    instance_type: mac_mini_m1
+    max_build_duration: 30
+    environment:
+      ios_signing:
+        distribution_type: ad_hoc
+        bundle_id: com.channing.loadr
+      vars:
+        XCODE_WORKSPACE: ios/App/App.xcodeproj
+        XCODE_SCHEME: App
+        APP_STORE_CONNECT_ISSUER_ID: Codemagic
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm install
+      - name: Sync Capacitor
+        script: |
+          npx cap sync ios
+      - name: Set up code signing settings on Xcode project
+        script: |
+          xcode-project use-profiles
+      - name: Build ipa for distribution
+        script: |
+          xcodebuild build-for-testing \
+            -project "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Release \
+            -derivedDataPath build/ios/build \
+            -quiet
+          
+          xcodebuild -exportArchive \
+            -archivePath build/ios/build/App.xcarchive \
+            -exportPath build/ios/ipa \
+            -exportOptionsPlist build/ios/build/exportOptions.plist \
+            -allowProvisioningUpdates
+    artifacts:
+      - build/ios/ipa/App.ipa
+    publishing:
+      email:
+        enabled: false
