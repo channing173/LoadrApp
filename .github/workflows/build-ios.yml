@@ -1,0 +1,79 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  workflow_dispatch:  # Allow manual trigger from Actions tab
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.0
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Sync Capacitor iOS
+      run: npx cap sync ios
+
+    - name: Setup Xcode
+      run: |
+        sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+
+    - name: Build iOS App
+      run: |
+        cd ios/App
+        xcodebuild -workspace App.xcworkspace \
+          -scheme App \
+          -configuration Release \
+          -derivedDataPath build \
+          -allowProvisioningUpdates \
+          -quiet
+
+    - name: Create IPA
+      run: |
+        cd ios/App
+        xcodebuild -workspace App.xcworkspace \
+          -scheme App \
+          -configuration Release \
+          -derivedDataPath build \
+          -archivePath build/App.xcarchive \
+          archive
+
+    - name: Export IPA
+      env:
+        DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
+      run: |
+        cd ios/App
+        xcodebuild -exportArchive \
+          -archivePath build/App.xcarchive \
+          -exportPath build/IPA \
+          -exportOptionsPlist exportOptions.plist
+
+    - name: Upload IPA Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Loadr-iOS-IPA
+        path: ios/App/build/IPA/App.ipa
+        retention-days: 30
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ios/App/build/IPA/App.ipa
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
