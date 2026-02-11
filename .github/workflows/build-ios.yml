@@ -47,6 +47,12 @@ jobs:
     - name: Create IPA
       run: |
         cd ios/App
+        # Find the Team ID from the project
+        TEAM_ID=$(xcodebuild -project App.xcodeproj -scheme App -showBuildSettings | grep -E "DEVELOPMENT_TEAM" | head -1 | awk '{print $NF}')
+        if [ -z "$TEAM_ID" ]; then
+          # Use a placeholder team ID for local development
+          TEAM_ID="PLACEHOLDER"
+        fi
         xcodebuild -project App.xcodeproj \
           -scheme App \
           -configuration Release \
@@ -55,11 +61,21 @@ jobs:
           -allowProvisioningUpdates \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
+          DEVELOPMENT_TEAM=$TEAM_ID \
           archive
 
     - name: Export IPA
       run: |
         cd ios/App
+        # Get Team ID from the archive
+        TEAM_ID=$(xcodebuild -project App.xcodeproj -scheme App -showBuildSettings | grep -E "DEVELOPMENT_TEAM" | head -1 | awk '{print $NF}')
+        if [ -z "$TEAM_ID" ]; then
+          TEAM_ID="PLACEHOLDER"
+        fi
+        # Update plist with team ID
+        /usr/libexec/PlistBuddy -c "Add :teamID string $TEAM_ID" exportOptions.plist 2>/dev/null || \
+        /usr/libexec/PlistBuddy -c "Set :teamID $TEAM_ID" exportOptions.plist
+        
         xcodebuild -exportArchive \
           -archivePath build/App.xcarchive \
           -exportPath build/IPA \

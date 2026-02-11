@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>development</string>
+    <string>ad-hoc</string>
     <key>signingStyle</key>
     <string>automatic</string>
     <key>stripSwiftSymbols</key>
@@ -12,5 +12,7 @@
     <dict/>
     <key>capabilities</key>
     <dict/>
+    <key>useAppSigning</key>
+    <false/>
 </dict>
 </plist>
