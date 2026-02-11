@@ -10,7 +10,6 @@ workflows:
       vars:
         XCODE_WORKSPACE: ios/App/App.xcodeproj
         XCODE_SCHEME: App
-        APP_STORE_CONNECT_ISSUER_ID: Codemagic
     scripts:
       - name: Install dependencies
         script: |
@@ -39,4 +38,6 @@ workflows:
       - build/ios/ipa/App.ipa
     publishing:
       email:
-        enabled: false
+        recipients:
+          - your-email@example.com
+
