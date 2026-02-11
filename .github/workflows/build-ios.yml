@@ -34,23 +34,17 @@ jobs:
         sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
     - name: Build iOS App
-      env:
-        DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
       run: |
         cd ios/App
-        if [ -z "$DEVELOPMENT_TEAM" ]; then
-          echo "Warning: DEVELOPMENT_TEAM secret not set. Build may fail."
-        fi
         xcodebuild -project App.xcodeproj \
           -scheme App \
           -configuration Release \
           -derivedDataPath build \
           -allowProvisioningUpdates \
-          DEVELOPMENT_TEAM=$DEVELOPMENT_TEAM
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO
 
     - name: Create IPA
-      env:
-        DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
       run: |
         cd ios/App
         xcodebuild -project App.xcodeproj \
@@ -59,18 +53,18 @@ jobs:
           -derivedDataPath build \
           -archivePath build/App.xcarchive \
           -allowProvisioningUpdates \
-          DEVELOPMENT_TEAM=$DEVELOPMENT_TEAM \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
           archive
 
     - name: Export IPA
-      env:
-        DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
       run: |
         cd ios/App
         xcodebuild -exportArchive \
           -archivePath build/App.xcarchive \
           -exportPath build/IPA \
-          -exportOptionsPlist exportOptions.plist
+          -exportOptionsPlist exportOptions.plist \
+          -allowProvisioningUpdates
 
     - name: Upload IPA Artifact
       uses: actions/upload-artifact@v4
