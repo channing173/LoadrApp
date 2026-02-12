@@ -157,10 +157,12 @@ jobs:
           IPA_PATH="ios/App/build/ipa/App.ipa"
           
           if [ -f "$IPA_PATH" ]; then
-            curl -T "$IPA_PATH" \
-              -H "Authorization: Bearer $DIAWI_TOKEN" \
+            echo "Uploading IPA to Diawi..."
+            curl -F "token=$DIAWI_TOKEN" \
               -F "file=@$IPA_PATH" \
               https://upload.diawi.com/
+            echo ""
+            echo "Upload complete!"
           else
             echo "IPA file not found at $IPA_PATH"
             exit 1
