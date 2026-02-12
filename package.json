@@ -4,9 +4,10 @@
   "description": "A simple plate calculator and 4-week workout planner Progressive Web App (PWA).",
   "main": "service-worker.js",
   "scripts": {
+    "build": "npm run build:web && npm run sync:ios",
+    "build:web": "echo 'Building web assets...'",
     "sync:ios": "npx cap sync ios",
     "open:ios": "npx cap open ios",
-    "build": "echo 'Build step - modify this based on your build process'",
     "cap:update": "npx cap update"
   },
   "repository": {

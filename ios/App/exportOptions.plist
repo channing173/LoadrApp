@@ -3,16 +3,17 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>ad-hoc</string>
+    <string>app-store</string>
     <key>signingStyle</key>
-    <string>automatic</string>
+    <string>manual</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>com.channing.loadr</key>
+        <string>LoadrApp</string>
+    </dict>
     <key>stripSwiftSymbols</key>
     <true/>
-    <key>provisioningProfiles</key>
-    <dict/>
-    <key>capabilities</key>
-    <dict/>
-    <key>useAppSigning</key>
-    <false/>
+    <key>teamID</key>
+    <string>YOUR_TEAM_ID</string>
 </dict>
 </plist>
