@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>app-store</string>
+    <string>app-store-connect</string>
     <key>signingStyle</key>
     <string>manual</string>
     <key>provisioningProfiles</key>
@@ -14,6 +14,6 @@
     <key>stripSwiftSymbols</key>
     <true/>
     <key>teamID</key>
-    <string>YOUR_TEAM_ID</string>
+    <string>ZDN8TAU2UG</string>
 </dict>
 </plist>
