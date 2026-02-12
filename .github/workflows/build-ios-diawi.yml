@@ -71,6 +71,14 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           echo "$PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/LoadrApp.mobileprovision
 
+      - name: Verify provisioning profile
+        run: |
+          echo "Checking provisioning profiles..."
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || true
+          echo ""
+          echo "Checking keychain..."
+          security find-identity -v -p codesigning
+          
       - name: Build iOS app
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -86,7 +94,7 @@ jobs:
             echo "Using project file: App.xcodeproj"
           fi
           
-          echo "Starting xcodebuild archive..."
+          echo "Starting xcodebuild archive with verbose output..."
           xcodebuild $BUILD_TARGET \
             -scheme App \
             -configuration Release \
@@ -99,15 +107,21 @@ jobs:
             CODE_SIGNING_REQUIRED=YES \
             CODE_SIGN_STYLE=Manual \
             PROVISIONING_PROFILE_SPECIFIER="LoadrApp" \
-            archive || { echo "Build failed!"; ls -la build/ || true; exit 1; }
+            -verbose \
+            archive 2>&1 | tail -50
           
-          echo "Build completed. Checking for archive..."
+          ARCH_EXIT=$?
+          echo "xcodebuild exited with code: $ARCH_EXIT"
+          
+          echo ""
+          echo "Checking for archive..."
           if [ -d "build/App.xcarchive" ]; then
             echo "✓ Archive created successfully"
             ls -lah build/App.xcarchive
           else
             echo "✗ Archive not found"
-            ls -laR build/ || true
+            echo "Contents of build directory:"
+            ls -laR build/ 2>/dev/null | head -100 || true
             exit 1
           fi
 
