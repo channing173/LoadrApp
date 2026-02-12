@@ -6,14 +6,12 @@
     <string>ad-hoc</string>
     <key>signingStyle</key>
     <string>manual</string>
+    <key>stripSwiftSymbols</key>
+    <true/>
     <key>provisioningProfiles</key>
     <dict>
         <key>com.channing.loadr</key>
         <string>LoadrApp</string>
     </dict>
-    <key>stripSwiftSymbols</key>
-    <true/>
-    <key>teamID</key>
-    <string>ZDN8TAU2UG</string>
 </dict>
 </plist>
