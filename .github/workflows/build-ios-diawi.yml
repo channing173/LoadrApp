@@ -144,13 +144,31 @@ jobs:
           fi
 
       - name: Create IPA
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           cd ios/App
+          
+          echo "Creating IPA from archive..."
           xcodebuild -exportArchive \
             -archivePath build/App.xcarchive \
-            -exportOptionsPlist exportOptions.plist \
             -exportPath build/ipa \
-            -allowProvisioningUpdates
+            -exportOptionsPlist exportOptions.plist \
+            -allowProvisioningUpdates \
+            2>&1 | tee export.log
+          
+          EXPORT_EXIT=$?
+          echo "Export exited with code: $EXPORT_EXIT"
+          
+          if [ -f "build/ipa/App.ipa" ]; then
+            echo "✓ IPA created successfully"
+            ls -lah build/ipa/App.ipa
+          else
+            echo "✗ IPA not found"
+            echo "Last 50 lines of export log:"
+            tail -50 export.log
+            exit 1
+          fi
 
       - name: Upload to Diawi
         if: github.event_name == 'push' || github.event.inputs.diawi_enabled == 'true'

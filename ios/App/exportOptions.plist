@@ -2,16 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>method</key>
-    <string>ad-hoc</string>
-    <key>signingStyle</key>
-    <string>manual</string>
-    <key>stripSwiftSymbols</key>
-    <true/>
-    <key>provisioningProfiles</key>
-    <dict>
-        <key>com.channing.loadr</key>
-        <string>LoadrApp</string>
-    </dict>
+	<key>method</key>
+	<string>ad-hoc</string>
+	<key>signingStyle</key>
+	<string>manual</string>
+	<key>stripSwiftSymbols</key>
+	<true/>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>com.channing.loadr</key>
+		<string>LoadrApp</string>
+	</dict>
 </dict>
 </plist>
