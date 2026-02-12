@@ -73,4 +73,4 @@ Data is never sent to external servers.
 
 ## Version
 
-Current version: **0.72**
+Current version: **0.83**
