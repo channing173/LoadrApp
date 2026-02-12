@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/channing173/LoadrApp#readme",
   "devDependencies": {
-    "@capacitor/cli": "^8.0.2",
+    "@capacitor/cli": "^8.1.0",
     "@capacitor/core": "^8.0.2",
     "@capacitor/ios": "^8.0.2"
   }
