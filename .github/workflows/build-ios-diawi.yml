@@ -32,7 +32,30 @@ jobs:
         run: npm run build
 
       - name: Sync Capacitor
-        run: npx cap sync ios
+        run: |
+          echo "Running cap sync ios..."
+          npx cap sync ios
+          echo "cap sync completed"
+          
+      - name: Check for iOS build dependencies
+        run: |
+          echo "Checking Podfile..."
+          if [ -f "ios/App/Podfile" ]; then
+            echo "Podfile found, installing pods..."
+            cd ios/App
+            pod install
+            cd ../..
+          else
+            echo "No Podfile found"
+          fi
+
+      - name: List iOS directory contents
+        run: |
+          echo "Contents of ios/App:"
+          ls -laR ios/App/ || true
+          echo ""
+          echo "Looking for workspace or project file:"
+          find ios/App -maxdepth 2 -name "*.xcworkspace" -o -name "*.xcodeproj"
 
       - name: Import signing certificate
         uses: apple-actions/import-codesign-certs@v2
@@ -53,18 +76,29 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           cd ios/App
-          xcodebuild -workspace App.xcworkspace \
+          
+          # Determine whether to use workspace or project file
+          BUILD_TARGET="-project App.xcodeproj"
+          if [ -d "App.xcworkspace" ]; then
+            BUILD_TARGET="-workspace App.xcworkspace"
+            echo "Using workspace: App.xcworkspace"
+          else
+            echo "Using project file: App.xcodeproj"
+          fi
+          
+          xcodebuild $BUILD_TARGET \
             -scheme App \
             -configuration Release \
             -derivedDataPath build \
             -resolvePackageDependencies \
             -allowProvisioningUpdates \
+            -archivePath build/App.xcarchive \
             TEAM_ID=$APPLE_TEAM_ID \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             CODE_SIGNING_REQUIRED=YES \
             CODE_SIGN_STYLE=Manual \
             PROVISIONING_PROFILE_SPECIFIER="LoadrApp" \
-            build
+            archive
 
       - name: Create IPA
         run: |
