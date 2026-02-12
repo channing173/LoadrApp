@@ -85,43 +85,58 @@ jobs:
         run: |
           cd ios/App
           
-          # Determine whether to use workspace or project file
-          BUILD_TARGET="-project App.xcodeproj"
-          if [ -d "App.xcworkspace" ]; then
-            BUILD_TARGET="-workspace App.xcworkspace"
-            echo "Using workspace: App.xcworkspace"
-          else
-            echo "Using project file: App.xcodeproj"
-          fi
+          # List available schemes
+          echo "Available schemes:"
+          xcodebuild -project App.xcodeproj -list
           
-          echo "Starting xcodebuild archive with verbose output..."
-          xcodebuild $BUILD_TARGET \
+          echo ""
+          echo "================================"
+          echo "Attempting regular build first..."
+          echo "================================"
+          
+          xcodebuild -project App.xcodeproj \
             -scheme App \
             -configuration Release \
             -derivedDataPath build \
             -resolvePackageDependencies \
-            -allowProvisioningUpdates \
+            clean build 2>&1 | tee build.log
+          
+          BUILD_EXIT=$?
+          echo "Build exited with code: $BUILD_EXIT"
+          
+          if [ $BUILD_EXIT -ne 0 ]; then
+            echo "Build failed! Last 100 lines of log:"
+            tail -100 build.log
+            exit 1
+          fi
+          
+          echo ""
+          echo "================================"
+          echo "Build succeeded, now archiving..."
+          echo "================================"
+          
+          xcodebuild -project App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -derivedDataPath build \
             -archivePath build/App.xcarchive \
             TEAM_ID=$APPLE_TEAM_ID \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             CODE_SIGNING_REQUIRED=YES \
             CODE_SIGN_STYLE=Manual \
             PROVISIONING_PROFILE_SPECIFIER="LoadrApp" \
-            -verbose \
-            archive 2>&1 | tail -50
+            archive 2>&1 | tee archive.log
           
           ARCH_EXIT=$?
-          echo "xcodebuild exited with code: $ARCH_EXIT"
+          echo "Archive exited with code: $ARCH_EXIT"
           
-          echo ""
-          echo "Checking for archive..."
           if [ -d "build/App.xcarchive" ]; then
             echo "✓ Archive created successfully"
             ls -lah build/App.xcarchive
           else
             echo "✗ Archive not found"
-            echo "Contents of build directory:"
-            ls -laR build/ 2>/dev/null | head -100 || true
+            echo "Last 100 lines of archive log:"
+            tail -100 archive.log
             exit 1
           fi
 
